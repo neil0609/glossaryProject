@@ -1,0 +1,134 @@
+﻿
+@{
+    ViewBag.Title = "List";
+}
+
+<div  id="glossaryController" data-ng-controller="$glossaryController as list">
+    <h2>Hello World!!!</h2>
+    <h2>{{list.headingInfo}}</h2>
+
+
+    <div class="row">
+        <div class="col-xs-12">
+            <h3><a href="/add" role="button" class="btn btn-primary">Add Glossary</a></h3>
+            <table class="table table-striped table-bordered table-hover table-responsive">
+                <tr>
+                    <th>Id</th>
+                    <th>Term</th>
+                    <th>Definition</th>
+                    <th>Delete</th>
+                    <th>Edit</th>
+                </tr>
+                <tr ng-repeat="x in list.glossary">
+                    <td>{{ x.id }}</td>
+                    <td>{{ x.term }}</td>
+                    <td>{{ x.definition }}</td>
+                    <td><button class="btn btn-danger" ng-click="list.deleteGlossaryItem(x)">Delete</button></td>   
+                    <td><a href="/{{x.id}}">edit</a></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <br />
+
+
+    {{list.glossary}}
+
+</div>
+
+
+
+
+@section Scripts
+{
+
+<script src="~/Scripts/ibis.js"></script>
+<script src="~/Scripts/ibis.ng.app.js"></script>
+<script src="~/Scripts/ibis.services.glossary.js"></script>
+
+    <script type="text/javascript">
+   
+        ibis.page.startUp = function () {
+
+            ibis.page.glossaryController = ibis.ng.getControllerInstance($("#glossaryController"));
+        }
+
+        ibis.services.glossaryFactory = function ($baseService) {
+            var aibisServiceObject = ibis.services.glossary;
+            var newService = $baseService.merge(true, {}, aibisServiceObject, $baseService);
+            return newService;
+        }
+
+        ibis.page.glossaryControllerFactory = function ($scope, $baseController, $glossaryService) {
+
+            var vm = this;
+
+            $baseController.merge(vm, $baseController);
+
+            vm.headingInfo = "Awesome!";
+
+            vm.$glossaryService = $glossaryService;
+            vm.$scope = $scope;
+
+            vm.glossary = {};
+
+            vm.onReceiveglossaryListSuccess = _onReceiveglossaryListSuccess;
+            vm.onReceiveGlossaryListError = _onReceiveGlossaryListError;
+
+            vm.deleteGlossaryItem = _deleteGlossaryItem;
+
+            vm.onDeleteGlossaryItemSuccess = _onDeleteGlossaryItemSuccess;
+            vm.onDeleteGlossaryItemError = _onDeleteGlossaryItemError;
+
+            vm.notify = vm.$glossaryService.getNotifier($scope);
+
+            render();
+
+            function render() {
+               
+                vm.$glossaryService.getGlossaryList( vm.onReceiveglossaryListSuccess, vm.onReceiveGlossaryListError);
+                
+            }
+
+            function _onReceiveglossaryListSuccess(data) {
+                console.log(data.items);
+                vm.notify(function () {
+                    vm.glossary = data.items;
+                });     
+            }
+
+            function _onReceiveGlossaryListError(jqXhr, error) {
+                console.log(error);
+            }
+
+            function _deleteGlossaryItem(model) {
+                var id = model.id;
+                vm.$glossaryService.deleteGlossaryItem(id, vm.onDeleteGlossaryItemSuccess, vm.onDeleteGlossaryItemError);
+            }
+
+            function _onDeleteGlossaryItemSuccess(data) {
+                alert("Glossary Item Deleted");
+                location.reload();
+                console.log(data);
+            }
+
+            function _onDeleteGlossaryItemError(jqXhr, error) {
+                console.log(jqXhr);
+            }
+
+        }
+
+            ibis.ng.addService(ibis.ng.app.module
+                 , "$glossaryService"
+                 , ["$baseService"]
+                 , ibis.services.glossaryFactory);
+
+            ibis.ng.addController(ibis.ng.app.module
+               , "$glossaryController"
+               , ['$scope', '$baseController', '$glossaryService']
+               , ibis.page.glossaryControllerFactory);
+
+        
+    </script>
+
+}

@@ -1,0 +1,8 @@
+C:\SF.Code\C11\Sabio.Data\bin\Debug\Sabio.Data.dll.config
+C:\SF.Code\C11\Sabio.Data\bin\Debug\Sabio.Data.dll
+C:\SF.Code\C11\Sabio.Data\bin\Debug\Sabio.Data.pdb
+C:\SF.Code\C11\Sabio.Data\bin\Debug\SendGrid.SmtpApi.dll
+C:\SF.Code\C11\Sabio.Data\bin\Debug\SendGridMail.dll
+C:\SF.Code\C11\Sabio.Data\obj\Debug\Sabio.Data.dll
+C:\SF.Code\C11\Sabio.Data\obj\Debug\Sabio.Data.pdb
+C:\SF.Code\C11\Sabio.Data\obj\Debug\Data.csprojResolveAssemblyReference.cache

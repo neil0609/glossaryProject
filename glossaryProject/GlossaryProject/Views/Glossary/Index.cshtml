@@ -1,0 +1,155 @@
+﻿@model GlossaryProject.Models.ViewModel.ItemViewModel<int>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<div id="glossaryInputController" data-ng-controller="$glossaryInputController as input">
+    <h2>Hello World!!!</h2>
+    <h2 style="display: none;">{{input.headingInfo}}</h2>
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="row">
+                <div class="col-lg-6">
+                    <form class="glossaryForm" data-ng-submit="input.sendGlossaryItem()">
+                        <label>Term:</label><br />
+                        <input type="text" name="term" value="" style="width: 100%;" data-ng-model="input.glossary.term" /><br />
+                        <label>Definition:</label><br />
+                        <textarea name="definition" value="" style="width: 100%;" rows="10" data-ng-model="input.glossary.definition"></textarea>
+                        <input type="hidden" name="id" value="@Model.Item" data-ng-model="input.glossary.id" /><br/><br/>
+                        <button type="submit" class="btn btn-primary">Send</button>
+                        <a href="/" class="btn btn-primary" role="button">List</a>
+                    </form>
+                </div>
+                <div class="col-lg-6">
+                    <div style="width:100%;">
+                        <h3>Term: {{input.glossary.term}}</h3>
+                        <h3>Definition: {{input.glossary.definition}}</h3>
+                        <h3 style="display: none;">{{input.glossary}}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+@section Scripts
+{
+
+    <script src="~/Scripts/ibis.js"></script>
+    <script src="~/Scripts/ibis.ng.app.js"></script>
+    <script src="~/Scripts/ibis.services.glossary.js"></script>
+
+    <script type="text/javascript">
+
+        ibis.page.startUp = function () {
+
+            ibis.page.glossaryInputController = ibis.ng.getControllerInstance($("#glossaryInputController"));
+
+        }
+
+        ibis.services.glossaryFactory = function ($baseService) {
+            var aibisServiceObject = ibis.services.glossary;
+            var newService = $baseService.merge(true, {}, aibisServiceObject, $baseService);
+            return newService;
+        }
+
+        ibis.page.glossaryInputControllerFactory = function ($scope, $baseController, $glossaryInputService) {
+
+            var vm = this;
+
+            $baseController.merge(vm, $baseController);
+
+            vm.headingInfo = "Awesome!";
+
+            vm.$glossaryInputService = $glossaryInputService;
+            vm.$scope = $scope;
+
+            vm.glossary = {};
+            vm.glossary.id = @Model.Item;
+
+            vm.onReceiveGlossaryItemSuccess = _onReceiveGlossaryItemSuccess;
+            vm.onReceiveGlossaryItemError = _onReceiveGlossaryItemError;
+
+            vm.sendGlossaryItem = _sendGlossaryItem;
+
+            vm.onInsertGlossaryItemSuccess = _onInsertGlossaryItemSuccess;
+            vm.onInsertGlossaryItemError = _onInsertGlossaryItemError;
+
+            vm.onUpdateGlossaryItemSuccess = _onUpdateGlossaryItemSuccess;
+            vm.onUpdateGlossaryItemError = _onUpdateGlossaryItemError;
+
+            vm.notify = vm.$glossaryInputService.getNotifier($scope);
+
+            render();
+
+            function render() {
+                if (vm.glossary.id != 0){
+                    vm.$glossaryInputService.getGlossaryItem(vm.glossary.id, vm.onReceiveGlossaryItemSuccess, vm.onReceiveGlossaryItemError);
+                }
+            }
+                
+            function _onReceiveGlossaryItemSuccess(data){
+                console.log(data.item);
+                vm.notify(function(){
+                    vm.glossary = data.item;
+                });                  
+            }      
+
+                function _onReceiveGlossaryItemError(jqXhr, error){
+                    console.log(error);
+                }
+
+                function _sendGlossaryItem(){
+                    console.log('submitted');
+                    var myData = vm.glossary;
+                    if(vm.glossary.id == 0){
+                        
+                        vm.$glossaryInputService.insertGlossaryItem(myData, vm.onInsertGlossaryItemSuccess, vm.onInsertGlossaryItemError);
+                    } else {
+              
+                        vm.$glossaryInputService.updateGlossaryItem(myData, vm.onUpdateGlossaryItemSuccess, vm.onUpdateGlossaryItemError);
+                    }
+                }
+
+                function _onInsertGlossaryItemSuccess(data){
+                    console.log(data.item);
+                    vm.notify(function(){
+                        vm.glossary.id = data.item;
+                    });
+                    alert("You have Successfully Added a Glossary!");
+                }
+
+                function _onInsertGlossaryItemError(jqXhr, error){
+                    console.log(error);
+                }
+
+                function _onUpdateGlossaryItemSuccess(data){
+                    console.log(data);
+                    alert("You have Successfully Updated a Glossary!");
+                }
+
+                function _onUpdateGlossaryItemError(jqXhr, error){
+                    console.log(error);
+                }
+
+        }
+
+            ibis.ng.addService(ibis.ng.app.module
+                 , "$glossaryInputService"
+                 , ["$baseService"]
+                 , ibis.services.glossaryFactory);
+
+            ibis.ng.addController(ibis.ng.app.module
+               , "$glossaryInputController"
+               , ['$scope', '$baseController', '$glossaryInputService']
+               , ibis.page.glossaryInputControllerFactory);
+
+
+    </script>
+
+}
